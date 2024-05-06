@@ -1,6 +1,8 @@
 package org.config;
 
 import jakarta.persistence.EntityManagerFactory;
+import lombok.NoArgsConstructor;
+
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -9,7 +11,8 @@ import org.model.Car;
 import org.model.Seller;
 
 import java.util.Properties;
-//source from this code is one of my previous group projects
+
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class HibernateConfig {
 
     private static EntityManagerFactory entityManagerFactory;
@@ -19,8 +22,8 @@ public class HibernateConfig {
             Configuration configuration = new Configuration();
 
             Properties props = new Properties();
-            //when trying just rename db to car_db as I have issues with dropping dbs for some reason(techinical difficulties with presql)
-            props.put("hibernate.connection.url", "jdbc:postgresql://localhost:5432/car_db_beta_beta?currentSchema=public");
+
+            props.put("hibernate.connection.url", "jdbc:postgresql://localhost:5432/dev?currentSchema=public");
             props.put("hibernate.connection.username", "postgres");
             props.put("hibernate.connection.password", "postgres");
             props.put("hibernate.show_sql", "true"); // show sql in console
@@ -53,10 +56,18 @@ public class HibernateConfig {
         return sf.unwrap(EntityManagerFactory.class);
     }
 
+
     private static void getAnnotationConfiguration(Configuration configuration) {
         configuration.addAnnotatedClass(Car.class);
         configuration.addAnnotatedClass(Seller.class);
 
+    }
+
+    public static EntityManagerFactory getEntityManagerFactoryConfig(boolean isTesting){
+        if(isTesting) return getEntityManagerFactoryConfigForTesting();
+        boolean isDeployed = (System.getenv("DEPLOYED") != null);
+        if(isDeployed) return getEntityManagerFactoryConfigForDeployment();
+        return getEntityManagerFactoryConfig();
     }
 
     public static EntityManagerFactory getEntityManagerFactoryConfig() {
@@ -69,6 +80,37 @@ public class HibernateConfig {
         return entityManagerFactory;
 
     }
+
+    public static EntityManagerFactory getEntityManagerFactoryConfigForDeployment() {
+        if (entityManagerFactory == null) entityManagerFactory = setupEntityManagerFactoryConfigForDeployment();
+        return entityManagerFactory;
+    }
+
+
+    public static EntityManagerFactory setupEntityManagerFactoryConfigForDeployment(){
+        try {
+            Configuration configuration = new Configuration();
+
+            Properties props = new Properties();
+
+            props.put("hibernate.connection.url", System.getenv("CONNECTION_STR") + System.getenv("DB_NAME"));
+            props.put("hibernate.connection.username", System.getenv("DB_USERNAME"));
+            props.put("hibernate.connection.password", System.getenv("DB_PASSWORD"));
+
+            props.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect"); // dialect for postgresql
+            props.put("hibernate.connection.driver_class", "org.postgresql.Driver"); // driver class for postgresql
+            props.put("hibernate.archive.autodetection", "class"); // hibernate scans for annotated classes
+            props.put("hibernate.current_session_context_class", "thread"); // hibernate current session context
+            props.put("hibernate.hbm2ddl.auto", "update"); // hibernate creates tables based on entities
+
+
+            return getEntityManagerFactory(configuration, props);
+        } catch (Throwable ex) {
+            System.err.println("Initial SessionFactory creation failed." + ex);
+            throw new ExceptionInInitializerError(ex);
+        }
+    };
+
     private static EntityManagerFactory setupHibernateConfigurationForTesting() {
         try {
             Configuration configuration = new Configuration();
@@ -88,7 +130,7 @@ public class HibernateConfig {
         }
     }
 
-    public static EntityManagerFactory getEntityManagerFactory(boolean isTest){
+    private static EntityManagerFactory getEntityManagerFactory(boolean isTest){
         if(isTest) return getEntityManagerFactoryConfigForTesting();
         return getEntityManagerFactoryConfig();
     }

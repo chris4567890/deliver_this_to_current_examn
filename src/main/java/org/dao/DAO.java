@@ -16,9 +16,9 @@ public abstract class DAO<T,K> implements IDAO<T, K> {
 
     public DAO(Class<T> tClass, boolean isTesting){
         if(isTesting){
-            emf = HibernateConfig.getEntityManagerFactoryConfigForTesting();
+            emf = HibernateConfig.getEntityManagerFactoryConfig(isTesting);
         }else{
-            emf = HibernateConfig.getEntityManagerFactoryConfig();
+            emf = HibernateConfig.getEntityManagerFactoryConfig(isTesting);
         }
         entityClass = tClass;
     }
