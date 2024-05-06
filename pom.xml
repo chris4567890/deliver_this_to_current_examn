@@ -258,7 +258,7 @@
             </plugin>
 
             <!--   Shade plugin (JAR)  -->
-
+            <!--this is a stupid comment so i can pushs -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
