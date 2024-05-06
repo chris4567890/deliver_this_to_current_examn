@@ -1,0 +1,40 @@
+POST http://localhost:7008/api/postCar
+content-type: application/json
+
+{
+  "brand": "Ford",
+  "model": "Ford TT",
+  "make": "placeholder",
+  "year": 1922,
+  "time_registration":"today",
+  "price": 0.1
+
+
+}
+
+###
+
+GET http://localhost:7008/api/getCars
+
+###
+
+GET http://localhost:7008/api/getCar/3
+
+###
+
+PUT http://localhost:7008/api/updateCar/0
+content-type: application/json
+
+{
+  "id": 0,
+  "make": "placeholder",
+  "brand": "Ford",
+  "year": 1923,
+  "time_registration": "today",
+  "price": 30.4
+}
+
+###
+
+DELETE http://localhost:7008/api/deleteCar/0
+content-type: application/json
