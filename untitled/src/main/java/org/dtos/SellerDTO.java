@@ -17,7 +17,7 @@ public class SellerDTO {
     private String first_name;
     private int phone;
     private String city;
-
+    //this is a comment so I can push the shit.
     public SellerDTO(Seller seller){
         this.id = seller.getEmail();
         this.last_name = seller.getLast_name();
