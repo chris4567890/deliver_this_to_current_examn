@@ -18,14 +18,17 @@ import java.util.Set;
 @AllArgsConstructor
 public class Seller {
     @Id
-    String email;
-    String first_name;
-    String last_name;
-    String password;
+    private String email;
+    private String first_name;
+    private String last_name;
+    private String password;
     int phone;
     //random comment to make it work
     String city;
     @OneToMany(cascade = {CascadeType.PERSIST,CascadeType.DETACH, CascadeType.MERGE}, fetch = FetchType.EAGER)
     private Set<Car> cars = new HashSet<>();
+    Set<Role> roles = new HashSet<>();
+
+
 
 }

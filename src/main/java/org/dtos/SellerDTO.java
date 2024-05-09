@@ -4,7 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.model.Role;
 import org.model.Seller;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -18,6 +22,8 @@ public class SellerDTO {
     private String password;
     private int phone;
     private String city;
+    private Set<Role> roles = new HashSet<>();;
+
     //this is a comment so I can push the shit.
     public SellerDTO(Seller seller){
         this.id = seller.getEmail();

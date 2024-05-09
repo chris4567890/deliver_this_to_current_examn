@@ -2,6 +2,7 @@ package org.util;
 
 import org.config.HibernateConfig;
 import org.model.Car;
+import org.model.Role;
 import org.model.Seller;
 
 import java.util.HashSet;
@@ -9,6 +10,7 @@ import java.util.Set;
 
 public class populate {
     Set<Car> bobsSet =  new HashSet<>();
+
     Set<Car> meSet = new HashSet<>();
     Car testCar1 = new Car(0,"test","test","test","test",1999,50);
     Car testCar2 = new Car(1,"test","test","test","test",1999,50);
@@ -19,8 +21,8 @@ public class populate {
         bobsSet.add(car);
     }
 
-    Seller seller1 = new Seller("bob@builder.com","bob","builder","1243",11111,"københaven",bobsSet);
-    Seller seller2 = new Seller("ours@ours.com","me","the awesome","1243",4949,"lyngby",meSet);
+    Seller seller1 = new Seller("bob@builder.com","bob","builder","1243",11111,"københaven",bobsSet,Set.of(Role.seller));
+    Seller seller2 = new Seller("ours@ours.com","me","the awesome","1243",4949,"lyngby",meSet,Set.of(Role.admin,Role.seller) );
 
     public void popDb(){
         fillSet(testCar1);
