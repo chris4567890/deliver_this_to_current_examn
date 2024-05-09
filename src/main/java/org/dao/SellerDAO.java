@@ -65,7 +65,7 @@ public class SellerDAO extends DAO<Seller,Integer> {
         Car car = new Car(3,"49","44","444","4847",199,399);
         Set<Car> cars = new HashSet<>();
         cars.add(car);
-        Seller seller = new Seller("thomas@thomas.com","thomas","thomas",4854,"Lyngby",cars);
+        Seller seller = new Seller("thomas@thomas.com","thomas","thomas","1234567890",4854,"Lyngby",cars);
         sellerDAO.addCarToSeller(seller.getEmail(),car.getId());
     }
     public Set getCarsBySeller(String id){
