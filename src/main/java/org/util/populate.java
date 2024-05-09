@@ -19,8 +19,8 @@ public class populate {
         bobsSet.add(car);
     }
 
-    Seller seller1 = new Seller("bob@builder.com","bob","builder",11111,"københaven",bobsSet);
-    Seller seller2 = new Seller("ours@ours.com","me","the awesome",4949,"lyngby",meSet);
+    Seller seller1 = new Seller("bob@builder.com","bob","builder","1243",11111,"københaven",bobsSet);
+    Seller seller2 = new Seller("ours@ours.com","me","the awesome","1243",4949,"lyngby",meSet);
 
     public void popDb(){
         fillSet(testCar1);
