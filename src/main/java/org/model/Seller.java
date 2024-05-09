@@ -23,7 +23,7 @@ public class Seller {
     String last_name;
     String password;
     int phone;
-
+    //random comment to make it work
     String city;
     @OneToMany(cascade = {CascadeType.PERSIST,CascadeType.DETACH, CascadeType.MERGE}, fetch = FetchType.EAGER)
     private Set<Car> cars = new HashSet<>();
