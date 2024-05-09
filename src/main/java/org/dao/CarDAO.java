@@ -31,15 +31,7 @@ public class CarDAO extends DAO<Car,Integer> {
         }
         return car;
     }
-    @Override
-    public Car getById(int id){
-        Car car;
-        try(var em = HibernateConfig.getEntityManagerFactoryConfig().createEntityManager()){
-            em.getTransaction().begin();
-            car = em.find(Car.class,id);
-        }
-        return car;
-    }
+
 
     public void addCarToSeller(String seller_id, int id){
         Seller seller;

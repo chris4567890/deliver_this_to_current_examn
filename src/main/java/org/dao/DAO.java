@@ -75,7 +75,7 @@ public abstract class DAO<T,K> implements IDAO<T, K> {
     }
 
 
-    public abstract Object getById(int id);
+    
 
 
 

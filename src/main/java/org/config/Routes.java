@@ -27,6 +27,11 @@ public class Routes {
                put("addCarToSeller/{email}/{car_id}",sc.addCarToSeller());
                get("getCarsBySeller",sc.GetCarFromSeller());
             });
+
+            path("/",()->{
+               post("login",sc.login());
+               post("register",sc.register());
+            });
         } ;
     }
 

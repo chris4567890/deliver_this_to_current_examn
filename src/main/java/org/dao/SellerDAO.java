@@ -7,7 +7,7 @@ import org.model.Seller;
 import java.util.HashSet;
 import java.util.Set;
 //most of this is also rewritten from one of my group projects
-public class SellerDAO extends DAO<Seller,Integer> {
+public class SellerDAO extends DAO<Seller,String> {
     private static SellerDAO instance;
 
     public static SellerDAO getInstance(boolean isTesting){
@@ -21,19 +21,9 @@ public class SellerDAO extends DAO<Seller,Integer> {
         super(Seller.class,isTesting);
     }
 
-    @Override
-    public Object getById(int id) {
-        Seller seller;
-        try(var em = HibernateConfig.getEntityManagerFactoryConfig().createEntityManager()){
-            em.getTransaction().begin();
-            seller = em.find(Seller.class,id);
-
-        }
-        return seller;
-    }
 
     @Override
-    public Seller getById(Integer id) {
+    public Seller getById(String id) {
         Seller seller;
         try(var em = HibernateConfig.getEntityManagerFactoryConfig().createEntityManager()){
             em.getTransaction().begin();
