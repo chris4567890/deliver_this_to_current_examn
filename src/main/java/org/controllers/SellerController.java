@@ -63,7 +63,7 @@ public class SellerController {
                 map.put("username", loginDTO.getUsername());
                 map.put("roles","seller");
                 String token = TokenUtil.createToken("cphbuisness",
-                        3000000,
+                        1800000,
                         "841D8A6C80CBA4FCAD32D5367C18C53B",
                         "login",
                         map );
