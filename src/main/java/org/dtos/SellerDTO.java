@@ -34,7 +34,9 @@ public class SellerDTO {
         this.password = seller.getPassword();
     }
 
-
-
+    public SellerDTO(String id,String password){
+        this.id = id;
+        this.password = password;
+    }
 
 }
