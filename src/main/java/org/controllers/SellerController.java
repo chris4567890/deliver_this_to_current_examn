@@ -56,12 +56,13 @@ public class SellerController {
 
     public  Handler login(){
         return(ctx ->{
+            System.out.println("I am inside login for some reason");
             LoginDTO loginDTO = ctx.bodyAsClass(LoginDTO.class);
             Seller seller = sellerDAO.getById(loginDTO.getUsername());
             if(checkPass(seller,loginDTO.getPassword())){
                 Map<String,String> map = new HashMap<>();
                 map.put("username", loginDTO.getUsername());
-                map.put("roles","seller");
+                map.put("roles",seller.getRoles().toString());
                 String token = TokenUtil.createToken("cphbuisness",
                         1800000,
                         "841D8A6C80CBA4FCAD32D5367C18C53B",
