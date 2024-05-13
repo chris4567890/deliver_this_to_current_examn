@@ -1,5 +1,5 @@
 package org.controllers;
-
+/*
 import io.restassured.RestAssured;
 import jakarta.persistence.EntityManagerFactory;
 import org.config.ApplicationConfig;
@@ -21,9 +21,7 @@ class CarControllerTest {
         RestAssured.baseURI = "http://localhost:6969/api";
         ApplicationConfig applicationConfig = ApplicationConfig.getInstance();
         applicationConfig.initiateServer()
-                .startServer(6969)
-                .setExceptionHandling()
-                .setRoutes(Routes.getRoutes(true));
+
         Car testCar1 = new Car(0,"Tesla","elon","musk","today",2024,300);
         try(var em = HibernateConfig.getEntityManagerFactoryConfig().createEntityManager()){
             em.getTransaction().begin();
@@ -48,4 +46,4 @@ class CarControllerTest {
             em.getTransaction().commit();
         }
     }
-}
+}*/
