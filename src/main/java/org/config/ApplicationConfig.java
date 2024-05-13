@@ -17,6 +17,7 @@ import static org.model.Role.seller;
 public class ApplicationConfig {
     ObjectMapper om = new ObjectMapper();
     private Javalin app;
+    //random comment added pls work
     private static ApplicationConfig instance;
     private ApplicationConfig(){
     }
