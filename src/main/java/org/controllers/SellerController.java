@@ -8,8 +8,10 @@ import org.dao.SellerDAO;
 import org.dtos.LoginDTO;
 import org.dtos.SellerDTO;
 import org.dtos.TokenDTO;
+import org.hibernate.cache.spi.CacheTransactionSynchronization;
 import org.model.Car;
 import org.model.Seller;
+import org.mozilla.javascript.tools.shell.ConsoleTextArea;
 import org.util.TokenUtil;
 
 import java.util.HashMap;
@@ -57,8 +59,11 @@ public class SellerController {
     public  Handler login(){
         return(ctx ->{
             System.out.println("I am inside login for some reason");
+            //System.out.println("username: " +ctx.sessionAttribute("username"));
+            //System.out.println(("password: "+ctx.sessionAttribute("password")));
             LoginDTO loginDTO = ctx.bodyAsClass(LoginDTO.class);
-            Seller seller = sellerDAO.getById(loginDTO.getUsername());
+            System.out.println(loginDTO.getUsername());
+            Seller seller = sellerDAO.getById(loginDTO.getUsername().toString());
             if(checkPass(seller,loginDTO.getPassword())){
                 Map<String,String> map = new HashMap<>();
                 map.put("username", loginDTO.getUsername());
@@ -78,7 +83,14 @@ public class SellerController {
     }
 
     private boolean checkPass(Seller seller,String password){
-        return seller.getPassword() == password;
+        System.out.println("I am inside checkpassword");
+        System.out.println("here is your seller password: "+seller.getPassword());
+        System.out.println("here is the given pass:" +password);
+        if(seller.getPassword().equals(password)){
+            return true;
+        }else{
+            return false;
+        }
         //TODO: change to salt later
     }
 

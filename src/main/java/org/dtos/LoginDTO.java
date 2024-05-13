@@ -1,18 +1,19 @@
 package org.dtos;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class LoginDTO {
 
     private String password;
     private String username;
 
-    public LoginDTO(String username, String password){
-        this.username = username;
-        this.password = password;
-    }
+
 
 }

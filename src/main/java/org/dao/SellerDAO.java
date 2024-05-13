@@ -25,10 +25,13 @@ public class SellerDAO extends DAO<Seller,String> {
 
     @Override
     public Seller getById(String id) {
+        System.out.println("I am inside get by id");
         Seller seller;
+
         try(var em = HibernateConfig.getEntityManagerFactoryConfig().createEntityManager()){
-            em.getTransaction().begin();
+            //em.getTransaction().begin();
             seller = em.find(Seller.class,id);
+            System.out.println("here is your found seller: "+seller);
 
         }
         return seller;
