@@ -2,131 +2,153 @@ package org.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.nimbusds.jose.shaded.json.JSONObject;
+import org.dtos.SellerDTO;
 import io.javalin.Javalin;
 import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.http.HttpStatus;
-import org.controllers.SecurityController;
-import org.dtos.SellerDTO;
-import org.hibernate.boot.jaxb.internal.MappingBinder;
-import org.model.Role;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
-//import static jdk.javadoc.internal.doclets.formats.html.markup.HtmlStyle.header;
+import static org.model.Role.seller;
 
-//source for this code is one of my previous group projects
-    public class ApplicationConfig {
-
-        //private static ObjectMapper jsonMapper = new ObjectMapper();
-        private static ObjectMapper jsonMapper = new ObjectMapper();
-        private static org.config.ApplicationConfig appConfig;
-
-        private static Javalin app;
-
-        private ApplicationConfig(){}
-
-        public static org.config.ApplicationConfig getInstance(){
-            if(appConfig == null){
-                appConfig = new org.config.ApplicationConfig();
-            }
-            return appConfig;
+public class ApplicationConfig {
+    ObjectMapper om = new ObjectMapper();
+    private Javalin app;
+    private static ApplicationConfig instance;
+    private ApplicationConfig(){
+    }
+    // now it's a singleton
+    public static ApplicationConfig getInstance(){
+        if(instance == null){
+            instance = new ApplicationConfig();
         }
+        return instance;
+    }
 
-    public org.config.ApplicationConfig initiateServer(){
-        System.out.println("Working Directory = "+ System.getProperty("user.dir"));
-        String separator = System.getProperty("file.separator");
+    public ApplicationConfig initiateServer(){
         app = Javalin.create(config -> {
-            config.http.defaultContentType="application/json";
-            config.routing.contextPath="/api";
-            config.plugins.enableDevLogging();
-            config.accessManager((handler, ctx, permittedRoles)->{
+            config.http.defaultContentType = "application/json";
+            config.routing.contextPath = "/api"; // what ever you want your urls starts with
+        });
+        app.attribute("bye","Goodbye");
 
-                if(ctx.method().toString().equals("OPTIONS")){
-                    ctx.status(200);
-                    return;
-                }
+        /*
+        Middleware (HTTP Filters):
 
-                if(permittedRoles.contains(Role.anyone)){
-                    ctx.status(200);
+        Middleware in Javalin allows us to add common functionalities like logging,
+        authentication, etc., to our web application.
+
+        */
+        app.before( ctx -> {
+            HttpServletRequest request = ctx.req();
+            System.out.println(request);
+        });
+        /*
+        Here we print out the request before its processed by the route handler.
+         */
+        app.after(ctx -> {
+            HttpServletResponse response = ctx.res();
+            System.out.println("----");
+            String goodbye = app.attribute("bye");
+            System.out.println(goodbye);
+            System.out.println(response);
+        });
+        /*
+        similarly to app.before, after logs the response to the console
+        after the request has been handled.
+         */
+        return instance;
+    }
+    public ApplicationConfig setRoute(EndpointGroup route){
+        app.routes(route);
+        return instance;
+    }
+
+    /*
+    Exception Handling:
+     */
+    public ApplicationConfig setExceptionOverallHandling(){
+
+        app.exception(NumberFormatException.class,(e,ctx) ->{
+            ObjectNode node = om.createObjectNode().put("Bad request: Not a number!",e.getMessage());
+            ctx.status(400).json(node);
+        });
+        app.exception(NullPointerException.class,(e,ctx) -> {
+            ObjectNode node = om.createObjectNode().put("Bad request: Not found!",e.getMessage());
+            ctx.status(404).json(node);
+        });
+        app.exception(Exception.class, (e,ctx) ->{
+            ObjectNode node = om.createObjectNode().put("errorMessage",e.getMessage());
+            ctx.status(500).json(node);
+        });
+        return instance;
+    }
+    // public ApplicationConfig setException
+    public ApplicationConfig startServer(int port){
+        app.start(port);
+        return instance;
+    }
+    public ApplicationConfig configureCors() {
+        app.before(ctx -> {
+            ctx.header("Access-Control-Allow-Origin", "*");
+            ctx.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            ctx.header("Access-Control-Allow-Headers", "Content-Type");
+        });
+
+        app.options("/*", ctx -> {
+            ctx.header("Access-Control-Allow-Origin", "*");
+            ctx.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            ctx.header("Access-Control-Allow-Headers", "Content-Type");
+        });
+        return instance;
+    }
+
+    public ApplicationConfig checkSecurityRoles() {
+        ObjectMapper jsonMapper = new ObjectMapper();
+        // Check roles on the user (ctx.attribute("username") and compare with permittedRoles using securityController.authorize()
+        app.updateConfig(config -> {
+            config.accessManager((handler, ctx, permittedRoles) -> {
+                // permitted roles are defined in the last arg to routes: get("/", ctx -> ctx.result("Hello World"), Role.ANYONE);
+
+                Set<String> allowedRoles = permittedRoles.stream().map(role -> role.toString().toUpperCase()).collect(Collectors.toSet());
+                if(allowedRoles.contains("ANYONE") || ctx.method().toString().equals("OPTIONS")) {
+                    // Allow requests from anyone and OPTIONS requests (preflight in CORS)
                     handler.handle(ctx);
                     return;
                 }
-                JsonObject returnObject = new JsonObject();
-                String header = ctx.header("Authorization");
-                if(header == null){
-                    returnObject.addProperty("msg", "Authorization header missing");
-                    ctx.status(HttpStatus.FORBIDDEN).json(returnObject);
-                    return;
+                SellerDTO user = ctx.attribute("seller");
+                System.out.println("USER IN CHECK_SEC_ROLES: "+user);
+                if(user == null) {
+                    ctx.status(HttpStatus.FORBIDDEN)
+                            .json(jsonMapper.createObjectNode()
+                                    .put("msg", "Not authorized. No username were added from the token"));
                 }
-                String token = header.split(" ")[1];
-                if (token == null) {
-                    returnObject.addProperty("msg", "Authorization header missing");
-                    ctx.status(HttpStatus.FORBIDDEN).json(returnObject);
-                    return;
+                if (authorize(user, allowedRoles)) {
+                    handler.handle(ctx);
+                }else {
+                    try {
+                        System.out.println("error");
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 }
-                SecurityController sc = SecurityController.getInstance();
-                SellerDTO verifiedTokenUser = sc.verifyToken(token);
-                if (verifiedTokenUser == null) {
-                    returnObject.addProperty("msg", "Invalid User or Token");
-                    ctx.status(HttpStatus.FORBIDDEN).json(returnObject);
-                    return;
-                }
-                if(!ctx.path().isEmpty() && verifiedTokenUser.getRoles().stream().noneMatch(x -> x.equals(ctx.path()))){
-                    returnObject.addProperty("msg", "You don't have access to this part of the website");
-                    ctx.status(HttpStatus.FORBIDDEN).json(returnObject);
-                    return;
-                }
-                System.out.println("USER IN AUTHENTICATE: " + verifiedTokenUser);
-                ctx.attribute("user", verifiedTokenUser);
-
             });
         });
-        return appConfig;
-    };
-
-
-
-
-    public org.config.ApplicationConfig setRoutes(EndpointGroup routes){
-            app.routes(routes);
-            return appConfig;
-        }
-
-        public org.config.ApplicationConfig startServer(int port){
-            app.start(port);
-            return appConfig;
-        };
-
-        public org.config.ApplicationConfig setExceptionHandling(){
-
-            app.exception(IllegalStateException.class, (e, ctx) -> {
-                ObjectNode json = jsonMapper.createObjectNode();
-                json.put("errorMessage", e.getMessage());
-                e.printStackTrace();
-                ctx.status(500).json(json);
+        return instance;
+    }
+    private static boolean authorize(SellerDTO sellerDTO, Set<String> allowedRoles) {
+        AtomicBoolean hasAcces = new AtomicBoolean(false);
+        if(sellerDTO != null){
+            sellerDTO.getRoles().forEach(role ->{
+                if(allowedRoles.contains(role/*.getName()*/.toString().toUpperCase())){
+                    hasAcces.set(true);
+                }
             });
-            app.exception(Exception.class, (e, ctx) -> {
-                ObjectNode json = jsonMapper.createObjectNode();
-                json.put("errorMessage",e.getMessage());
-                e.printStackTrace();
-                ctx.status(500).json(json);
-            });
-            app.error(404, ctx -> {
-                ObjectNode json = jsonMapper.createObjectNode();
-                json.put("errorMessage", "Not found");
-                ctx.status(404).json(json);
-            });
-            return appConfig;
         }
-
-        public org.config.ApplicationConfig closeServer(){
-            app.close();
-            return appConfig;
-        }
-
+        return hasAcces.get();
     }
 
-
-
+}

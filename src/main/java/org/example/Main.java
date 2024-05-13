@@ -7,12 +7,19 @@ public class Main {
     public static void main(String[] args) {
         //System.out.println("Hello world!");
         boolean isTesting = false;
-        ApplicationConfig app = ApplicationConfig
+       /* ApplicationConfig instance = ApplicationConfig
                 .getInstance()
-                .initiateServer()
-                .setExceptionHandling()
                 .startServer(7070)
-                .setRoutes(Routes.getRoutes(isTesting));
+                .checkSecurityRoles()
+                .setRoute(Routes.getRoutes(false))
+                .configureCors();
+    }*/
+        ApplicationConfig applicationConfig = ApplicationConfig.getInstance();
+        applicationConfig.initiateServer()
+                .startServer(7070)
+                .checkSecurityRoles()
+                .setRoute(Routes.getRoutes(false))
+                .configureCors();
 
     }
 }

@@ -32,6 +32,7 @@ public class SellerDTO {
         this.phone = seller.getPhone();
         this.city = seller.getCity();
         this.password = seller.getPassword();
+        this.roles = seller.getRoles();
     }
 
     public SellerDTO(String id,String password){
