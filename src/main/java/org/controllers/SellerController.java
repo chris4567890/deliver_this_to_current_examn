@@ -52,7 +52,8 @@ public class SellerController {
            if(seller == null && loginDTO.getPassword() != null){
                Set<Role> roles = new HashSet<>();
                roles.add(Role.seller);
-               seller = new Seller(loginDTO.getUsername(),"","", loginDTO.getPassword(),0,"",null,roles );
+               Set<Car> cars = new HashSet<>();
+               seller = new Seller(loginDTO.getUsername(),"","", loginDTO.getPassword(),0,"",cars,roles );
                System.out.println("just before create seller");
                sellerDAO.create(seller);
                ctx.json("you have now registered feel free to login or don't I ain't a cop ");
