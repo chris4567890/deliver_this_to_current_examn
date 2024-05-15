@@ -48,7 +48,7 @@ public class SellerController {
            Seller seller = sellerDAO.getById(loginDTO.getUsername());
            if(seller == null && loginDTO.getPassword() != null){
                sellerDAO.create(seller);
-               login();
+               ctx.json("you have now registered feel free to login or don't I ain't a cop :)");
            }
            else{
                ctx.json("user already exist or you forgot password");
