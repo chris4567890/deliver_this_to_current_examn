@@ -10,11 +10,13 @@ import org.dtos.SellerDTO;
 import org.dtos.TokenDTO;
 import org.hibernate.cache.spi.CacheTransactionSynchronization;
 import org.model.Car;
+import org.model.Role;
 import org.model.Seller;
 import org.mozilla.javascript.tools.shell.ConsoleTextArea;
 import org.util.TokenUtil;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 //most of this is also rewritten from one of my group projects
@@ -43,12 +45,17 @@ public class SellerController {
     }
 
     public Handler register(){
+        System.out.println("inside register");
         return(ctx -> {
            LoginDTO loginDTO = ctx.bodyAsClass(LoginDTO.class);
            Seller seller = sellerDAO.getById(loginDTO.getUsername());
            if(seller == null && loginDTO.getPassword() != null){
+               Set<Role> roles = new HashSet<>();
+               roles.add(Role.seller);
+               seller = new Seller(loginDTO.getUsername(),"","", loginDTO.getPassword(),0,"",null,roles );
+               System.out.println("just before create seller");
                sellerDAO.create(seller);
-               ctx.json("you have now registered feel free to login or don't I ain't a cop :)");
+               ctx.json("you have now registered feel free to login or don't I ain't a cop ");
            }
            else{
                ctx.json("user already exist or you forgot password");

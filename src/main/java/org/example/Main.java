@@ -18,8 +18,9 @@ public class Main {
         applicationConfig.initiateServer()
                 .startServer(7070)
                 .checkSecurityRoles()
+                .configureCors()
                 .setRoute(Routes.getRoutes(isTesting))
-                .configureCors();
+                ;
 
     }
 }
